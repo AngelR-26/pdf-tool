@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Fraunces } from "next/font/google";
+import { PdfWorkspaceProvider } from "@/lib/pdf-workspace";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -12,18 +13,27 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
+  subsets: ["latin"],
+  style: ["normal", "italic"],
+  weight: ["400", "500", "600"],
+});
+
 export const metadata: Metadata = {
   title: "PDF Tool",
-  description: "Tool for merging, splitting and organizing pdfs",
+  description: "Une, separa y organiza tus PDF directamente en el navegador.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      lang="es"
+      className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <PdfWorkspaceProvider>{children}</PdfWorkspaceProvider>
+      </body>
     </html>
   );
 }
