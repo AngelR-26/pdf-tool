@@ -1,8 +1,7 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
-import JSZip from "jszip";
+import { useEffect, useState, type ChangeEvent } from "react";import JSZip from "jszip";
 import { ToolPageShell } from "@/components/tool-page-shell";
 import { usePdfWorkspace } from "@/lib/pdf-workspace";
 import {
@@ -89,7 +88,7 @@ export default function SepararPage() {
   }, [file]);
 
   function handleFileChange(
-    event: React.ChangeEvent<HTMLInputElement>,
+    event: ChangeEvent<HTMLInputElement>,
   ) {
     const selectedFile = event.target.files?.[0];
 
