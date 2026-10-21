@@ -37,7 +37,7 @@ export default function SepararPage() {
 
   const file = files[0] ?? null;
 
-  const [mode, setMode] = useState<SplitMode>("extract");
+  const [mode, setMode] = useState<SplitMode | null>(null);
   const [pageSelection, setPageSelection] = useState("1-3");
   const [pagesPerFile, setPagesPerFile] = useState("5");
   const [pageCount, setPageCount] = useState<number | null>(null);
@@ -114,6 +114,12 @@ export default function SepararPage() {
       return;
     }
 
+    if (mode === null) {
+      setError("Selecciona un método para separar el PDF antes de continuar.");
+      setMessage("");
+      return;
+    }
+    
     if (pageCount === null) {
       setError("Espera a que termine la lectura del PDF.");
       return;
@@ -236,7 +242,7 @@ export default function SepararPage() {
                 </label>
               </div>
             ) : (
-              <label className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-line p-8 text-center hover:bg-stamp">
+              <label className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-line p-8 text-center hover:bg-pine hover:[&>span]:!text-white">
                 <span className="font-medium text-ink">
                   Selecciona un archivo PDF
                 </span>
@@ -270,8 +276,8 @@ export default function SepararPage() {
               aria-pressed={mode === "extract"}
               className={`rounded-lg border p-4 text-left transition ${
                 mode === "extract"
-                  ? "border-ink bg-stamp"
-                  : "border-line hover:bg-stamp"
+                  ? "border-ink bg-pine [&>span]:!text-white"
+                  : "border-line hover:bg-pine hover:[&>span]:!text-white"
               }`}
             >
               <span className="block font-semibold text-ink">
@@ -292,8 +298,8 @@ export default function SepararPage() {
               aria-pressed={mode === "divide"}
               className={`rounded-lg border p-4 text-left transition ${
                 mode === "divide"
-                  ? "border-ink bg-stamp"
-                  : "border-line hover:bg-stamp"
+                  ? "border-ink bg-pine [&>span]:!text-white"
+                  : "border-line hover:bg-pine hover:[&>span]:!text-white"
               }`}
             >
               <span className="block font-semibold text-ink">
