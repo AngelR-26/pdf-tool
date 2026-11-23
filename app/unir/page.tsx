@@ -48,7 +48,7 @@ export default function UnirPage() {
     try {
       const mergedPdfBytes = await mergePdfFiles(files);
 
-      const blob = new Blob([mergedPdfBytes], {
+      const blob = new Blob([new Uint8Array(mergedPdfBytes).buffer as ArrayBuffer], {
         type: "application/pdf",
       });
 
