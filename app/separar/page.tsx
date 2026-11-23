@@ -1,7 +1,8 @@
 
 "use client";
 
-import { useEffect, useState, type ChangeEvent } from "react";import JSZip from "jszip";
+import { useEffect, useState, type ChangeEvent } from "react";
+import JSZip from "jszip";
 import { ToolPageShell } from "@/components/tool-page-shell";
 import { usePdfWorkspace } from "@/lib/pdf-workspace";
 import {
@@ -40,45 +41,56 @@ export default function SepararPage() {
   const [mode, setMode] = useState<SplitMode | null>(null);
   const [pageSelection, setPageSelection] = useState("1-3");
   const [pagesPerFile, setPagesPerFile] = useState("5");
-  const [pageCount, setPageCount] = useState<number | null>(null);
-  const [loadingPages, setLoadingPages] = useState(false);
+
+  const [pageInfo, setPageInfo] = useState<{
+    file: File;
+    status: "loaded" | "error";
+    pageCount?: number;
+  } | null>(null);
+
+  const currentPageInfo = pageInfo?.file === file ? pageInfo : null;
+
+  const pageCount =
+    currentPageInfo?.status === "loaded"
+      ? currentPageInfo.pageCount ?? null
+      : null;
+
+  const loadingPages = Boolean(file) && currentPageInfo === null;
+
+
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
-
+  //
   useEffect(() => {
     let cancelled = false;
-
-    setPageCount(null);
-    setError("");
-    setMessage("");
-
-    if (!file) {
-      setLoadingPages(false);
-      return;
-    }
+    if (!file) return;
 
     async function loadPageCount() {
-      setLoadingPages(true);
-
       try {
-        const count = await getPdfPageCount(file!);
+        const count = await getPdfPageCount(file);
 
         if (!cancelled) {
-          setPageCount(count);
+          setPageInfo({
+            file,
+            status: "loaded",
+            pageCount: count,
+          });
         }
       } catch {
         if (!cancelled) {
+          setPageInfo({
+            file,
+            status: "error",
+          });
+
           setError(
             "No se pudo leer el PDF. Comprueba que el archivo sea válido y que no esté protegido.",
           );
         }
-      } finally {
-        if (!cancelled) {
-          setLoadingPages(false);
-        }
       }
     }
+
 
     void loadPageCount();
 
@@ -105,7 +117,11 @@ export default function SepararPage() {
       return;
     }
 
+    // CAMBIO 3: limpiar mensajes al seleccionar otro archivo.
+    setError("");
+    setMessage("");
     setFiles([selectedFile]);
+
   }
 
   async function handleProcess() {
@@ -119,7 +135,7 @@ export default function SepararPage() {
       setMessage("");
       return;
     }
-    
+
     if (pageCount === null) {
       setError("Espera a que termine la lectura del PDF.");
       return;
@@ -274,11 +290,10 @@ export default function SepararPage() {
                 setMessage("");
               }}
               aria-pressed={mode === "extract"}
-              className={`rounded-lg border p-4 text-left transition ${
-                mode === "extract"
-                  ? "border-ink bg-pine [&>span]:!text-white"
-                  : "border-line hover:bg-pine hover:[&>span]:!text-white"
-              }`}
+              className={`rounded-lg border p-4 text-left transition ${mode === "extract"
+                ? "border-ink bg-pine [&>span]:!text-white"
+                : "border-line hover:bg-pine hover:[&>span]:!text-white"
+                }`}
             >
               <span className="block font-semibold text-ink">
                 Extraer páginas
@@ -296,11 +311,10 @@ export default function SepararPage() {
                 setMessage("");
               }}
               aria-pressed={mode === "divide"}
-              className={`rounded-lg border p-4 text-left transition ${
-                mode === "divide"
-                  ? "border-ink bg-pine [&>span]:!text-white"
-                  : "border-line hover:bg-pine hover:[&>span]:!text-white"
-              }`}
+              className={`rounded-lg border p-4 text-left transition ${mode === "divide"
+                ? "border-ink bg-pine [&>span]:!text-white"
+                : "border-line hover:bg-pine hover:[&>span]:!text-white"
+                }`}
             >
               <span className="block font-semibold text-ink">
                 Dividir por cantidad
@@ -356,11 +370,11 @@ export default function SepararPage() {
 
               <p className="text-sm text-ink-soft">
                 {pageCount !== null &&
-                Number.isInteger(Number(pagesPerFile)) &&
-                Number(pagesPerFile) > 0
+                  Number.isInteger(Number(pagesPerFile)) &&
+                  Number(pagesPerFile) > 0
                   ? `Se generarán ${Math.ceil(
-                      pageCount / Number(pagesPerFile),
-                    )} archivo(s) PDF.`
+                    pageCount / Number(pagesPerFile),
+                  )} archivo(s) PDF.`
                   : "Indica cuántas páginas tendrá cada archivo."}
                 {" "}El último archivo puede contener menos páginas.
               </p>
